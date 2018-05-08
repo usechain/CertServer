@@ -1,0 +1,8 @@
+D:\project>go tool pprof http://10.30.46.73:8888/debug/pprof/profile
+Fetching profile over HTTP from http://10.30.46.73:8888/debug/pprof/profile
+Saved profile in C:\Users\lilizi\pprof\pprof.samples.cpu.004.pb.gz
+Type: cpu
+Time: Mar 27, 2018 at 11:31am (CST)
+Duration: 30s, Total samples = 40ms ( 0.13%)
+Entering interactive mode (type "help" for commands, "o" for options)
+(pprof) web

@@ -1,0 +1,129 @@
+//@Time  : 2018/3/14 11:34
+//@Author: Greg Li
+package verify
+
+import (
+	"crypto/x509"
+	"encoding/pem"
+	"fmt"
+	"log"
+	"os"
+	"io/ioutil"
+)
+
+func parseTcaRsa() (rcaCert *x509.Certificate,txCert *x509.Certificate) {
+	//解析tca证书
+	tcaFile, err1 := ioutil.ReadFile("tca.crt")
+	if err1 != nil {
+		fmt.Println("ReadFile err:", err1)
+		return
+	}
+
+	tcaBlock, _:= pem.Decode(tcaFile)
+	if tcaBlock == nil {
+		fmt.Println("ecaFile error")
+		return
+	}
+
+	tcaCert, err := x509.ParseCertificate(tcaBlock.Bytes)
+	if err != nil {
+		fmt.Println("ParseCertificate err:", err)
+		return
+	}
+
+	//解析tx证书
+	txFile, err := ioutil.ReadFile("tx.crt")
+	if err != nil {
+		fmt.Println("ReadFile err:", err)
+		return
+	}
+
+	txBlock, _:= pem.Decode(txFile)
+	if txBlock == nil {
+		fmt.Println("ecaFile error")
+		return
+	}
+
+	txCert, err= x509.ParseCertificate(txBlock.Bytes)
+	if err != nil {
+		fmt.Println("ParseCertificate err:", err)
+		return
+	}
+	return tcaCert,txCert
+}
+
+func parseTcaEcdsa() (rcaCert *x509.Certificate,txCert *x509.Certificate) {
+	//解析tca证书
+	tcaFile, err1 := ioutil.ReadFile("tca.crt")
+	if err1 != nil {
+		fmt.Println("ReadFile err:", err1)
+		return
+	}
+
+	tcaBlock, _:= pem.Decode(tcaFile)
+	if tcaBlock == nil {
+		fmt.Println("ecaFile error")
+		return
+	}
+
+	tcaCert, err2 := x509.ParseCertificate(tcaBlock.Bytes)
+	if err2 != nil {
+		fmt.Println("ParseCertificate err:", err2)
+		return
+	}
+
+	//解析tx证书
+	txFile, err := ioutil.ReadFile("txca.crt")
+	if err != nil {
+		fmt.Println("ReadFile err:", err)
+		return
+	}
+
+	txBlock, _:= pem.Decode(txFile)
+	if txBlock == nil {
+		fmt.Println("ecaFile error")
+		return
+	}
+
+	txCert, err= x509.ParseCertificate(txBlock.Bytes)
+	if err != nil {
+		fmt.Println("ParseCertificate err:", err)
+		return
+	}
+	return tcaCert,txCert
+}
+
+func checkCert(ecdsaCurve string) {
+
+	var tcaCert *x509.Certificate
+	var txCert *x509.Certificate
+	var addr []string
+
+	switch ecdsaCurve {
+	case "":
+		tcaCert,txCert = parseTcaRsa()
+	case "P224":
+		tcaCert,txCert =parseTcaEcdsa()
+	case "P256":
+		tcaCert,txCert =parseTcaEcdsa()
+	case "P384":
+		tcaCert,txCert =parseTcaEcdsa()
+	case "P521":
+		tcaCert,txCert =parseTcaEcdsa()
+	default:
+		fmt.Fprintf(os.Stderr, "Unrecognized elliptic curve: %q", ecdsaCurve)
+		os.Exit(1)
+	}
+
+	//验证签名
+	err := txCert.CheckSignatureFrom(tcaCert)
+	log.Println("check txCert signature: ", err==nil)
+
+	//解析地址
+	addr = tcaCert.EmailAddresses
+	fmt.Println(addr[0])
+}
+
+func main() {
+	checkCert("P521")
+}
