@@ -84,17 +84,7 @@ func TcertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//检查数据库中是否有1000条公钥数据，如果数据很多，返回
-	pubNumber:=model.QueryPubNum(signData.Pub)
-	//fmt.Println(pubNumber)
-	if pubNumber>1000 {
-		res, _:= json.Marshal(Res{
-			Error:"2",
-			Msg:"您申请的Tcert已达上限",
-		})
-		w.Write(res)
-		return
-	}
+	
 	//3.验证签名
 	msg,err:=hexutil.Decode(signData.Msg)
 	if err!=nil{
@@ -145,14 +135,7 @@ func TcertHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//检测是否是主地址
-	var  mainAddrTag int
-	pubMainAddr:=Hex(crypto.Keccak256(pubkey[1:])[12:])
-	if pubMainAddr==signData.Addr{
-		mainAddrTag=1
-	} else {
-		mainAddrTag=2
-	}
+	
 
 	//如果签名正确，颁发Tcert
 	var tcert string
