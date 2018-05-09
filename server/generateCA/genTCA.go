@@ -68,7 +68,7 @@ func GenTCA(addr string,isCA bool,ecdsaCurve string,caName string,privName strin
 		BasicConstraintsValid: true,
 	}
 	template.DNSNames = append(template.DNSNames, "localhost")
-	template.EmailAddresses = append(template.EmailAddresses, addr)
+
 
 	if isCA {
 		template.IsCA = true
